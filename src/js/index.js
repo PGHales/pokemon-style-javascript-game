@@ -1,63 +1,4 @@
-const UP_KEY = 'w';
-const LEFT_KEY = 'a';
-const DOWN_KEY = 's';
-const RIGHT_KEY = 'd';
-const CANVAS_WIDTH = 1024;
-const CANVAS_HEIGHT = 576;
-const CANVAS_OFFSET_X = -2080;
-const CANVAS_OFFSET_Y = -860;//-825
-//Map is 100 x 74 tiles
-const MAP_WIDTH = 100;
-const MAP_HEIGHT= 74;
-//400% zoom in
-const MAP_ZOOM_FACTOR = 4;
-//12x12 pixel tiles
-const MAP_DIMENSION = 12;
-const MAP_TILE_SIZE= MAP_DIMENSION * MAP_ZOOM_FACTOR;
-const MOVEMENT_SPEED = 3;
-const BOUNDARIES_VISIBLE = true;
-
 const ctx = getCanvasContext();
-
-class Boundary {
-    constructor({ position, visible }) {
-        this.position = position;
-        this.fillStyle = `rgba(255, 0, 0, ${visible ? '0.4' : '0'})`
-    }
-
-    render() {
-        ctx.fillStyle = this.fillStyle;
-        ctx.fillRect(this.position.x, this.position.y, MAP_TILE_SIZE, MAP_TILE_SIZE);
-    }
-}
-
-class Sprite {
-    constructor({ position, fileName, frames = 1 }) {
-        this.position = position;
-        this.image = getImage(fileName);
-        this.frames = frames;
-        this.image.onload = () => {
-            this.width = this.image.width / this.frames;
-            this.height = this.image.height;
-        }
-    }
-    
-    render() {
-        ctx.drawImage(
-            this.image,
-            //Cropping location and width/height
-            0,
-            0,
-            this.image.width / this.frames,
-            this.image.height,
-            //Actual location and width/height
-            this.position.x,
-            this.position.y,
-            this.image.width / this.frames,
-            this.image.height
-        );
-    }
-}
 
 //4 in this constructor represents number of frames
 //192x68 image for the player sprite, where 192 is width, 68 is height
@@ -66,8 +7,13 @@ const player = new Sprite({
         x: CANVAS_WIDTH / 2 - 192 / 4 / 2,
         y: CANVAS_HEIGHT / 2 - 68 / 2
     },
-    fileName: 'playerDown.png',
-    frames: 4
+    numFrames: 4,
+    sprites: {
+        up: 'playerUp.png',
+        down: 'playerDown.png',
+        left: 'playerLeft.png',
+        right: 'playerRight.png'
+    }
 });
 
 const background = new Sprite({ 
@@ -76,6 +22,14 @@ const background = new Sprite({
         y: CANVAS_OFFSET_Y
     },
     fileName: 'map.png'
+});
+
+const foreground = new Sprite({ 
+    position: {
+        x: CANVAS_OFFSET_X,
+        y: CANVAS_OFFSET_Y
+    },
+    fileName: 'foreground.png'
 });
 
 const keys = {
@@ -88,7 +42,7 @@ const keys = {
 
 const boundaries = getBoundaries();
 
-const movables = [background, ...boundaries];
+const movables = [background, foreground, ...boundaries];
 
 window.addEventListener('keydown', e => {
     switch (e.key) {
@@ -155,7 +109,7 @@ function getBoundaries() {
                         x: j * MAP_TILE_SIZE + CANVAS_OFFSET_X,
                         y: rowIndex * MAP_TILE_SIZE + CANVAS_OFFSET_Y
                     },
-                    visible: true
+                    visible: BOUNDARIES_VISIBLE
                 }));
             }
         });
@@ -178,20 +132,31 @@ function animate() {
     background.render();
     boundaries.forEach(b => b.render());
     player.render();
+    foreground.render();
+
+    player.moving = false;
     if (keys.up && keys.last === UP_KEY &&
         !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y += MOVEMENT_SPEED);
+        player.moving = true;
+        player.image = player.sprites.up;
     }
     else if (keys.down && keys.last === DOWN_KEY &&
         !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, -MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y -= MOVEMENT_SPEED);
+        player.moving = true;
+        player.image = player.sprites.down;
     }
     else if (keys.left && keys.last === LEFT_KEY &&
         !boundaries.some(b => playerBoundaryCollisionDetected(b, MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x += MOVEMENT_SPEED);
+        player.moving = true;
+        player.image = player.sprites.left;
     }
     else if (keys.right && keys.last === RIGHT_KEY &&
         !boundaries.some(b => playerBoundaryCollisionDetected(b, -MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x -= MOVEMENT_SPEED);
+        player.moving = true;
+        player.image = player.sprites.right;
     }
 }
