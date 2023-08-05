@@ -32,6 +32,14 @@ const foreground = new Sprite({
     fileName: 'foreground.png'
 });
 
+const battleBackground = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    fileName: 'battleBackground.png'
+});
+
 const battle = {
     initiated: false
 };
@@ -151,7 +159,8 @@ function getPlayerBoundaryOverlappingArea(boundary) {
 }
 
 function animate() {
-    window.requestAnimationFrame(animate);
+    //Start animation loop
+    const animationId = window.requestAnimationFrame(animate);
     background.render();
     boundaries.forEach(b => b.render());
     battleZones.forEach(b => b.render());
@@ -163,7 +172,29 @@ function animate() {
     if (battle.initiated) return;
 
     if ((keys.up || keys.down || keys.left || keys.right) && battleZones.some(b => playerBoundaryCollisionDetected(b, 0, 0)) && Math.random() < BATTLE_CHANCE) {
+        //Stop current animation loop
+        window.cancelAnimationFrame(animationId);
         battle.initiated = true;
+        gsap.to("#battleBackground", {
+            opacity: 1,
+            repeat: 3,
+            yoyo: true,
+            duration: 0.4,
+            onComplete() {
+                gsap.to('#battleBackground', {
+                    opacity: 1,
+                    duration: 0.4,
+                    oncComplete() {
+                        //Start battle animation loop
+                        animateBattle();
+                        gsap.to('#battleBackground', {
+                            opacity: 0,
+                            duration: 0.4
+                        });
+                    }
+                });
+            }
+        });
     }
 
     if (keys.up && keys.last === UP_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, MOVEMENT_SPEED))) {
@@ -186,4 +217,10 @@ function animate() {
         player.moving = true;
         player.image = player.sprites.right;
     }
+}
+
+function animateBattle() {
+    //Start animation loop
+    window.requestAnimationFrame(animateBattle);
+    battleBackground.render();
 }
