@@ -52,3 +52,15 @@ class Boundary {
         ctx.fillRect(this.position.x, this.position.y, MAP_TILE_SIZE, MAP_TILE_SIZE);
     }
 }
+
+class BattleZone {
+    constructor({ position, visible }) {
+        this.position = position;
+        this.fillStyle = `rgba(0, 0, 255, ${visible ? '0.4' : '0'})`
+    }
+
+    render() {
+        ctx.fillStyle = this.fillStyle;
+        ctx.fillRect(this.position.x, this.position.y, MAP_TILE_SIZE, MAP_TILE_SIZE);
+    }
+}

@@ -32,6 +32,10 @@ const foreground = new Sprite({
     fileName: 'foreground.png'
 });
 
+const battle = {
+    initiated: false
+};
+
 const keys = {
     up: false,
     down: false,
@@ -41,8 +45,8 @@ const keys = {
 };
 
 const boundaries = getBoundaries();
-
-const movables = [background, foreground, ...boundaries];
+const battleZones = getBattlezones();
+const movables = [background, foreground, ...boundaries, ...battleZones];
 
 window.addEventListener('keydown', e => {
     switch (e.key) {
@@ -98,24 +102,38 @@ function getImage(name) {
 }
 
 function getBoundaries() {
-    const myBoundaries = [];
+    return parseJsonArrayDataIntoObjects(COLLISIONS, COLLISION_VALUE, (rowIndex, columnIndex) => new Boundary({
+        position: {
+            x: columnIndex * MAP_TILE_SIZE + CANVAS_OFFSET_X,
+            y: rowIndex * MAP_TILE_SIZE + CANVAS_OFFSET_Y
+        },
+        visible: BOUNDARIES_VISIBLE
+    }));
+}
+
+function getBattlezones() {
+    return parseJsonArrayDataIntoObjects(BATTLEZONES, BATTLEZONE_VALUE, (rowIndex, columnIndex) => new BattleZone({
+        position: {
+            x: columnIndex * MAP_TILE_SIZE + CANVAS_OFFSET_X,
+            y: rowIndex * MAP_TILE_SIZE + CANVAS_OFFSET_Y
+        },
+        visible: BATTLEZONES_VISIBLE
+    }));
+}
+
+function parseJsonArrayDataIntoObjects(jsonArray, jsonValue, valueToObjectMapFunction) {
+    const objectArray = [];
     let rowIndex = 0;
-    for (let i = 0; i < COLLISIONS.length; i += MAP_WIDTH) {
-        const row = COLLISIONS.slice(i, i + MAP_WIDTH);
-        row.forEach((value, j) => {
-            if (value === COLLISION_VALUE) {
-                myBoundaries.push(new Boundary({
-                    position: {
-                        x: j * MAP_TILE_SIZE + CANVAS_OFFSET_X,
-                        y: rowIndex * MAP_TILE_SIZE + CANVAS_OFFSET_Y
-                    },
-                    visible: BOUNDARIES_VISIBLE
-                }));
+    for (let i = 0; i < jsonArray.length; i += MAP_WIDTH) {
+        const row = jsonArray.slice(i, i + MAP_WIDTH);
+        row.forEach((value, columnIndex) => {
+            if (value === jsonValue) {
+                objectArray.push(valueToObjectMapFunction(rowIndex, columnIndex));
             }
         });
         rowIndex++;
     }
-    return myBoundaries;
+    return objectArray;
 }
 
 function playerBoundaryCollisionDetected(boundary, boundaryXOffset, boundaryYOffset) {
@@ -127,34 +145,43 @@ function playerBoundaryCollisionDetected(boundary, boundaryXOffset, boundaryYOff
     player.position.y + player.height * 0.5 < boundaryY + MAP_TILE_SIZE;
 }
 
+function getPlayerBoundaryOverlappingArea(boundary) {
+    return (Math.min(player.position.x + player.width, boundary.position.x + boundary.width) - Math.max(player.position.x, boundary.position.x)) *
+        (Math.min(player.position.y + player.height, boundary.position.y + boundary.height) - Math.max(player.position.y, boundary.position.y));
+}
+
 function animate() {
     window.requestAnimationFrame(animate);
     background.render();
     boundaries.forEach(b => b.render());
+    battleZones.forEach(b => b.render());
     player.render();
     foreground.render();
 
     player.moving = false;
-    if (keys.up && keys.last === UP_KEY &&
-        !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, MOVEMENT_SPEED))) {
+
+    if (battle.initiated) return;
+
+    if ((keys.up || keys.down || keys.left || keys.right) && battleZones.some(b => playerBoundaryCollisionDetected(b, 0, 0)) && Math.random() < BATTLE_CHANCE) {
+        battle.initiated = true;
+    }
+
+    if (keys.up && keys.last === UP_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y += MOVEMENT_SPEED);
         player.moving = true;
         player.image = player.sprites.up;
     }
-    else if (keys.down && keys.last === DOWN_KEY &&
-        !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, -MOVEMENT_SPEED))) {
+    else if (keys.down && keys.last === DOWN_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, -MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y -= MOVEMENT_SPEED);
         player.moving = true;
         player.image = player.sprites.down;
     }
-    else if (keys.left && keys.last === LEFT_KEY &&
-        !boundaries.some(b => playerBoundaryCollisionDetected(b, MOVEMENT_SPEED, 0))) {
+    else if (keys.left && keys.last === LEFT_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x += MOVEMENT_SPEED);
         player.moving = true;
         player.image = player.sprites.left;
     }
-    else if (keys.right && keys.last === RIGHT_KEY &&
-        !boundaries.some(b => playerBoundaryCollisionDetected(b, -MOVEMENT_SPEED, 0))) {
+    else if (keys.right && keys.last === RIGHT_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, -MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x -= MOVEMENT_SPEED);
         player.moving = true;
         player.image = player.sprites.right;
