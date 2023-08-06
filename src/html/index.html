@@ -10,20 +10,20 @@
         <h1 class="fontSize16">Draggle</h1>
         <div class="healthBarBox">
             <div class="healthBar grayHealthBar"></div>
-            <div class="healthBar greenHealthBar"></div>
+            <div id="opponentHealthBar" class="healthBar greenHealthBar"></div>
         </div>
     </div>
     <div id="playerInfo" class="monsterInfo">
         <h1 class="fontSize16">Emby</h1>
         <div class="healthBarBox">
             <div class="healthBar grayHealthBar"></div>
-            <div class="healthBar greenHealthBar"></div>
+            <div id="playerHealthBar" class="healthBar greenHealthBar"></div>
         </div>
     </div>
     <canvas></canvas>
     <div class="dialogBox">
         <div class="attacksBox">
-            <button>Attack1</button>
+            <button>Tackle</button>
             <button>Attack2</button>
         </div>
         <div class="attackTypesBox">
@@ -34,6 +34,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js" integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="../data/collisions.js"></script>
 <script src="../data/battlezones.js"></script>
+<script src="../data/types.js"></script>
+<script src="../data/attacks.js"></script>
 <script src="../js/constants.js"></script>
 <script src="../js/classes.js"></script>
 <script src="../js/index.js"></script>

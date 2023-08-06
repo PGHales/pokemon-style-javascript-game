@@ -53,7 +53,8 @@ const draggle = new Sprite({
         numFrames: 4,
         numFramesPerAnimation: 60
     },
-    animate: true
+    animate: true,
+    isEnemy: true
 });
 
 const emby = new Sprite({
@@ -84,6 +85,13 @@ const keys = {
 const boundaries = getBoundaries();
 const battleZones = getBattlezones();
 const movables = [background, foreground, ...boundaries, ...battleZones];
+
+const attackButtons = document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    emby.attack({
+        attack: TACKLE,
+        recipient: draggle
+    });
+}));
 
 window.addEventListener('keydown', e => {
     switch (e.key) {
