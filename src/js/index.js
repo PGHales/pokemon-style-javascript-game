@@ -7,7 +7,10 @@ const player = new Sprite({
         x: CANVAS_WIDTH / 2 - 192 / 4 / 2,
         y: CANVAS_HEIGHT / 2 - 68 / 2
     },
-    numFrames: 4,
+    frames: {
+        numFrames: 4,
+        numFramesPerAnimation: 20
+    },
     sprites: {
         up: 'playerUp.png',
         down: 'playerDown.png',
@@ -38,6 +41,32 @@ const battleBackground = new Sprite({
         y: 0
     },
     fileName: 'battleBackground.png'
+});
+
+const draggle = new Sprite({
+    position: {
+        x: 800,
+        y: 100
+    },
+    fileName: 'draggleSprite.png',
+    frames: {
+        numFrames: 4,
+        numFramesPerAnimation: 60
+    },
+    animate: true
+});
+
+const emby = new Sprite({
+    position: {
+        x: 280,
+        y: 325
+    },
+    fileName: 'embySprite.png',
+    frames: {
+        numFrames: 4,
+        numFramesPerAnimation: 60
+    },
+    animate: true
 });
 
 const battle = {
@@ -95,6 +124,7 @@ window.addEventListener('keyup', e => {
 });
 
 animate();
+//animateBattle();
 
 function getCanvasContext() {
     const canvas = document.querySelector('canvas');
@@ -167,7 +197,7 @@ function animate() {
     player.render();
     foreground.render();
 
-    player.moving = false;
+    player.animate = false;
 
     if (battle.initiated) return;
 
@@ -199,22 +229,22 @@ function animate() {
 
     if (keys.up && keys.last === UP_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y += MOVEMENT_SPEED);
-        player.moving = true;
+        player.animate = true;
         player.image = player.sprites.up;
     }
     else if (keys.down && keys.last === DOWN_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, 0, -MOVEMENT_SPEED))) {
         movables.forEach(m => m.position.y -= MOVEMENT_SPEED);
-        player.moving = true;
+        player.animate = true;
         player.image = player.sprites.down;
     }
     else if (keys.left && keys.last === LEFT_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x += MOVEMENT_SPEED);
-        player.moving = true;
+        player.animate = true;
         player.image = player.sprites.left;
     }
     else if (keys.right && keys.last === RIGHT_KEY && !boundaries.some(b => playerBoundaryCollisionDetected(b, -MOVEMENT_SPEED, 0))) {
         movables.forEach(m => m.position.x -= MOVEMENT_SPEED);
-        player.moving = true;
+        player.animate = true;
         player.image = player.sprites.right;
     }
 }
@@ -223,4 +253,6 @@ function animateBattle() {
     //Start animation loop
     window.requestAnimationFrame(animateBattle);
     battleBackground.render();
+    draggle.render();
+    emby.render();
 }
