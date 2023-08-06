@@ -1,7 +1,35 @@
-<link rel="stylesheet" type="text/css" href="../css/index.css"></style>
-<div id="container">
-    <div id="battleBackground"></div>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+</head>
+<div class="container">
+    <div class="battleBackground"></div>
+    <div id="opponentInfo" class="monsterInfo">
+        <h1 class="fontSize16">Draggle</h1>
+        <div class="healthBarBox">
+            <div class="healthBar grayHealthBar"></div>
+            <div class="healthBar greenHealthBar"></div>
+        </div>
+    </div>
+    <div id="playerInfo" class="monsterInfo">
+        <h1 class="fontSize16">Emby</h1>
+        <div class="healthBarBox">
+            <div class="healthBar grayHealthBar"></div>
+            <div class="healthBar greenHealthBar"></div>
+        </div>
+    </div>
     <canvas></canvas>
+    <div class="dialogBox">
+        <div class="attacksBox">
+            <button>Attack1</button>
+            <button>Attack2</button>
+        </div>
+        <div class="attackTypesBox">
+            <h1 class="fontSize16">Attack Type</h1>
+        </div>
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js" integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="../data/collisions.js"></script>

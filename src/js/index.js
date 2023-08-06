@@ -123,8 +123,8 @@ window.addEventListener('keyup', e => {
     }
 });
 
-animate();
-//animateBattle();
+//animate();
+animateBattle();
 
 function getCanvasContext() {
     const canvas = document.querySelector('canvas');
